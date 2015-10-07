@@ -1,0 +1,9 @@
+*~
+test
+mov
+trace
+*.o
+*.pgm
+*.png
+*.ply
+*.d
