@@ -160,6 +160,10 @@ vec trace(ray r, llist* geometry, llist* lights, int depth, long int* context_ha
 }
 
 int main(int argc, char* argv[]) {
+    if(argc != 2) {
+        printf("[USAGE] %s {file.ply}\n", argv[0]);
+        return 1;
+    }
     int t = time(NULL);
     
     setbuf(stdout, NULL); // disables stdout buffering
@@ -184,7 +188,7 @@ int main(int argc, char* argv[]) {
     geometry = llist_create();
     lights   = llist_create();
 
-    parse_ply("test.ply", geometry);
+    parse_ply(argv[1], geometry);
     // return 0;
 
     // plane = llist_add_new(geometry, sizeof(Plane), PLANE);
@@ -199,8 +203,8 @@ int main(int argc, char* argv[]) {
     // tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
     // tri_init(tri, vert, (vec){0,1,0}, metal);
 
-    sphere = llist_add_new(geometry, sizeof(Sphere), SPHERE);
-    sphere_init(sphere,  (vec){0,-.5,-4}, .5, (vec){0 ,0, 1}, mirror);
+    // sphere = llist_add_new(geometry, sizeof(Sphere), SPHERE);
+    // sphere_init(sphere,  (vec){0,-.5,-4}, .5, (vec){0 ,0, 1}, mirror);
     // sphere = llist_add_new(geometry, sizeof(Sphere), SPHERE);
     // sphere_init(sphere,  (vec){-1,0,0}, 0.1, (vec){1 ,0, 0}, diffuse);
 
@@ -215,7 +219,7 @@ int main(int argc, char* argv[]) {
 
     cam         = camera_create(eye, ul, ur, ll, lr, COLS, ROWS);
 
-    f_img = fopen("test/mirror_wall_fov2.pgm", "wb");
+    f_img = fopen("output.pgm", "wb");
     fputs("P6\n", f_img);
     fprintf(f_img, "%d %d\n",COLS,ROWS);
     fputs("255\n", f_img);
