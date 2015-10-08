@@ -153,7 +153,7 @@ vec trace(ray r, llist* geometry, llist* lights, int depth, long int* context_ha
     t = get_intersection(r, geometry, &hit, &normal, &color, &n);
 
     if(t < 0) {
-        return (vec){0.1,0.1,0.1};
+        return (vec){0.9,0.9,0.9};
     }
 
     return shade(geometry, lights, &r, &hit, &normal, &color, n, depth, context_hash);
