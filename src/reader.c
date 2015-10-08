@@ -45,7 +45,7 @@ void parse_ply(char* filename, llist* geometry) {
         vert[2] = verticies[c];
 
         tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
-        tri_init(tri, vert, (vec){0,1.0,0}, shiny);
+        tri_init(tri, vert, (vec){1.0,0,0}, shiny);
 
     }
     fclose(fp);
