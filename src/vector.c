@@ -61,7 +61,7 @@ vec vec_color_mult(vec a, vec b) {
 
 
 void vec_dump(const char* name, vec v) {
-	printf("\t / %lf \\\n", v.x);
-	printf("%s =\t | %lf |\n", name, v.y);
-	printf("\t \\ %lf /\n", v.z);
+	printf("\t / %10.4lf \\\n", v.x);
+	printf("%s =\t | %10.4lf |\n", name, v.y);
+	printf("\t \\ %10.4lf /\n", v.z);
 }

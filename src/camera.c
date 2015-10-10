@@ -32,3 +32,11 @@ ray camera_get_ray(camera cam, double index_x, double index_y) {
 	ray r = ray_create(cam.eye, vec_sub(p, cam.eye));
 	return r;
 }
+
+void camera_translate(camera* cam, vec t) {
+	cam->eye = vec_add(cam->eye, t);
+	cam->ul = vec_add(cam->ul, t);
+	cam->ur = vec_add(cam->ur, t);
+	cam->ll = vec_add(cam->ll, t);
+	cam->lr = vec_add(cam->lr, t);
+}

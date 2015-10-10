@@ -208,8 +208,59 @@ int main(int argc, char* argv[]) {
     // sphere = llist_add_new(geometry, sizeof(Sphere), SPHERE);
     // sphere_init(sphere,  (vec){-1,0,0}, 0.1, (vec){1 ,0, 0}, diffuse);
 
-    light = llist_add_new(lights, sizeof(Pointl), POINT);
-    pointl_init(light, (vec){-1, 0, 0}, 1);
+    /// CALCULATE CAMERA POSITION
+    vec m_center;
+    double m_height, m_width, m_depth;
+    double m_height_low = 999999, m_height_high = -999999;
+    double m_width_low = 999999, m_width_high = -999999;
+    double m_depth_low = 999999, m_depth_high = -999999;
+
+    node* itt = geometry->head;
+    while(itt != NULL) {
+        switch(itt->payloadType) {
+            case SPHERE:
+                sphere = (Sphere*)itt->payload;
+                if(sphere->pos.y-sphere->r < m_height_low)
+                    m_height_low = sphere->pos.y-sphere->r;
+                if(sphere->pos.y+sphere->r > m_height_high)
+                    m_height_high = sphere->pos.y+sphere->r;
+                if(sphere->pos.x-sphere->r < m_width_low)
+                    m_width_low = sphere->pos.x-sphere->r;
+                if(sphere->pos.x+sphere->r > m_width_high)
+                    m_width_high = sphere->pos.x+sphere->r;
+                if(sphere->pos.z-sphere->r < m_depth_low)
+                    m_depth_low = sphere->pos.z-sphere->r;
+                if(sphere->pos.z+sphere->r > m_depth_high)
+                    m_depth_high = sphere->pos.z+sphere->r;
+                break;
+            case TRIANGLE:
+                tri = (Tri*)itt->payload;
+                for(i = 0; i < 3; i++) {
+                    if(tri->vertex[i].y < m_height_low)
+                        m_height_low = tri->vertex[i].y;
+                    if(tri->vertex[i].y > m_height_high)
+                        m_height_high = tri->vertex[i].y;
+                    if(tri->vertex[i].x < m_width_low)
+                        m_width_low = tri->vertex[i].x;
+                    if(tri->vertex[i].x > m_width_high)
+                        m_width_high = tri->vertex[i].x;
+                    if(tri->vertex[i].z < m_depth_low)
+                        m_depth_low = tri->vertex[i].z;
+                    if(tri->vertex[i].z > m_depth_high)
+                        m_depth_high = tri->vertex[i].z;
+                }
+        }
+
+        itt = itt->next;
+    }
+
+    m_height = m_height_high - m_height_low;
+    m_width = m_width_high - m_width_low;
+    m_depth = m_depth_high - m_depth_low;
+    m_center.x = m_width_low + m_width/2;
+    m_center.y = m_height_low + m_height/2;
+    m_center.z = m_depth_low + m_depth/2;
+    printf("model height: %lf\nmodel width: %lf\nmodel depth: %lf\n", m_height, m_width, m_depth);
 
     vec eye = { 0, 0, 0},
          ul = {-.5, .5,-1},
@@ -217,7 +268,16 @@ int main(int argc, char* argv[]) {
          ll = {-.5,-.5,-1},
          lr = { .5,-.5,-1};
 
-    cam         = camera_create(eye, ul, ur, ll, lr, COLS, ROWS);
+    cam = camera_create(eye, ul, ur, ll, lr, COLS, ROWS);
+    camera_translate(&cam, m_center);
+    double a = asin(0.5);
+    camera_translate(&cam, (vec){0,0,((m_height > m_width ? m_height : m_width) / tan(a)) });
+
+
+    ///
+
+    light = llist_add_new(lights, sizeof(Pointl), POINT);
+    pointl_init(light, cam.ul, 1);
 
     f_img = fopen("output.pgm", "wb");
     fputs("P6\n", f_img);

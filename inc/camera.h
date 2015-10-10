@@ -13,5 +13,6 @@ typedef struct {
 camera camera_create(vec eye, vec ul, vec ur, vec ll, vec lr, int res_x, int res_y);
 ray camera_get_ray(camera cam, double index_x, double index_y);
 
+void camera_translate(camera* cam, vec t);
 
 #endif
