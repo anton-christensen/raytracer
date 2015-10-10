@@ -4,10 +4,10 @@ void parse_ply(char* filename, llist* geometry) {
     char str[256];
     FILE* fp;
     int nverticies = 0;
-    int nfaces = 0;
-    int i;
+    int nfaces = 0, nfaces_per_polygon;
+    int i, j;
     double x,y,z;
-    unsigned int a,b,c;
+    unsigned int* vertex_list;
     vec* verticies;
     vec vert[3];
     Tri* tri;
@@ -38,14 +38,20 @@ void parse_ply(char* filename, llist* geometry) {
         verticies[i] = (vec){x,y,z};
     }
     for(i = 0; i < nfaces; i++) {
-        fscanf(fp, "%*u %u %u %u\n", &a, &b, &c);
+        fscanf(fp, "%u", &nfaces_per_polygon);
+        vertex_list = (unsigned int*)malloc(sizeof(unsigned int)*nfaces_per_polygon);
+        for(j = 0; j < nfaces_per_polygon; j++) {
+            fscanf(fp, "%u", &vertex_list[j]);
+        }
+        for(j = 0; j < nfaces_per_polygon-2; j++) {
+            vert[0] = verticies[vertex_list[0]];
+            vert[1] = verticies[vertex_list[j+1]];
+            vert[2] = verticies[vertex_list[j+2]];
 
-        vert[0] = verticies[a];
-        vert[1] = verticies[b];
-        vert[2] = verticies[c];
-
-        tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
-        tri_init(tri, vert, (vec){1.0,0,0}, shiny);
+            tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
+            tri_init(tri, vert, (vec){1.0,0,0}, shiny);
+            
+        }
 
     }
     fclose(fp);

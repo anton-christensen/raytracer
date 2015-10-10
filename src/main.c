@@ -17,8 +17,8 @@
 #define COLS 960
 
 #define ANTIALIAS_FACTOR 1 // max 4
-#define REFLECTION_DEPTH 10
-#define AMBIENT_OCCLUSION_SAMPLES 32 // 128 samples
+#define REFLECTION_DEPTH 1
+#define AMBIENT_OCCLUSION_SAMPLES 1 // 128 samples
 #define SMART_ANTIALIAS 0
 
 
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
     m_center.x = m_width_low + m_width/2;
     m_center.y = m_height_low + m_height/2;
     m_center.z = m_depth_low + m_depth/2;
-    printf("model height: %lf\nmodel width: %lf\nmodel depth: %lf\n", m_height, m_width, m_depth);
+    // printf("model height: %lf\nmodel width: %lf\nmodel depth: %lf\n", m_height, m_width, m_depth);
 
     vec eye = { 0, 0, 0},
          ul = {-.5, .5,-1},
