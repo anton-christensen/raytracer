@@ -160,8 +160,8 @@ vec trace(ray r, llist* geometry, llist* lights, int depth, long int* context_ha
 }
 
 int main(int argc, char* argv[]) {
-    if(argc != 2) {
-        printf("[USAGE] %s {file.ply}\n", argv[0]);
+    if(argc < 2 || argc > 3) {
+        printf("[USAGE] %s {file.ply} [{outfile.pnm}]\n", argv[0]);
         return 1;
     }
     int t = time(NULL);
@@ -279,7 +279,7 @@ int main(int argc, char* argv[]) {
     light = llist_add_new(lights, sizeof(Pointl), POINT);
     pointl_init(light, cam.ul, 1);
 
-    f_img = fopen("output.pgm", "wb");
+    f_img = fopen((argc == 3 ? argv[2] : "output.pnm"), "wb");
     fputs("P6\n", f_img);
     fprintf(f_img, "%d %d\n",COLS,ROWS);
     fputs("255\n", f_img);

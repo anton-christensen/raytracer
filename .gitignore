@@ -4,6 +4,7 @@ mov
 trace
 *.o
 *.pgm
+*.pnm
 *.png
 *.ply
 *.d
