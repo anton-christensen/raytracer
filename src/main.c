@@ -277,7 +277,7 @@ int main(int argc, char* argv[]) {
     ///
 
     light = llist_add_new(lights, sizeof(Pointl), POINT);
-    pointl_init(light, cam.ul, 1);
+    pointl_init(light, vec_add(cam.ul, (vec){0,0,1}), 1);
 
     f_img = fopen((argc == 3 ? argv[2] : "output.pnm"), "wb");
     fputs("P6\n", f_img);
