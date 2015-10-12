@@ -31,6 +31,7 @@ void parse_ply(char* filename, llist* geometry) {
 
     }
 
+    printf("! POLYGONS %d\n", nfaces);
     verticies = (vec*)malloc(sizeof(vec)*nverticies);
 
     for(i = 0; i < nverticies; i++) {

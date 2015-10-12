@@ -309,11 +309,11 @@ int main(int argc, char* argv[]) {
             fputc(MAX(0.0,MIN(1.0, color.z))*255, f_img);
         }
         if(i % (ROWS/50) == 0 )
-            printf("%d%% ", (int)((double)i/(double)ROWS*100.0));
+            printf("! PERCENTAGE %d\n", (int)((double)i/(double)ROWS*100.0));
     }
 
     fclose(f_img);
-    printf("\nFinished in %d seconds\n", (int)time(NULL)-t);
+    printf("! RENDER_TIME %d\n", (int)time(NULL)-t);
 
     return 0;
 }
