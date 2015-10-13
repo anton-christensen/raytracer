@@ -65,7 +65,7 @@ void parse_ply(char* filename, llist* geometry) {
             if(has_color) {
                 vec c = vec_add(colors[vertex_list[0]], vec_add(colors[vertex_list[j+1]], colors[vertex_list[j+2]]));
                 tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
-                tri_init(tri, vert, c, shiny);
+                tri_init(tri, vert, vec_devide(c,3), shiny);
             }
             else {
                 tri = llist_add_new(geometry, sizeof(Tri), TRIANGLE);
