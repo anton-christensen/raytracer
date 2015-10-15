@@ -10,7 +10,7 @@ llist* llist_create() {
 }
 
 void* llist_add_new(llist* list, int size, int payloadType) {
-	node* n = (node*)malloc (sizeof(node) - 1 + size);
+	llist_node* n = (llist_node*)malloc (sizeof(llist_node) - 1 + size);
 	n->prev = NULL;
 	n->next = NULL;
 	n->payloadType = payloadType;

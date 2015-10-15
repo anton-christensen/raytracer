@@ -1,6 +1,7 @@
 *~
 test
 mov
+psudo_code
 trace
 *.o
 *.pgm

@@ -3,18 +3,18 @@
 
 #include <stdlib.h>
 
-typedef struct _node {
-    struct _node *prev;
-    struct _node *next;
+typedef struct _llist_node {
+    struct _llist_node *prev;
+    struct _llist_node *next;
     int payloadType;
     char payload[1];  // or use different type for alignment.
-} node;
+} llist_node;
 
 typedef struct {
 	int length;
-	node* head;
-	node* tail;
-	node* current;
+	llist_node* head;
+	llist_node* tail;
+	llist_node* current;
 } llist;
 
 llist* llist_create();
