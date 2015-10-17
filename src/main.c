@@ -8,10 +8,12 @@
 #include "point_light.h"
 #include "reader.h"
 #include "vector.h"
+#include "scene.h"
 
 int main(int argc, char* argv[]) {
     int i,t;
 
+    Scene scene;
     camera cam;
     Pointl* light;
     llist *geometry, *lights;
@@ -58,8 +60,9 @@ int main(int argc, char* argv[]) {
     light = llist_add_new(lights, sizeof(Pointl), POINT);
     pointl_init(light, vec_add(cam.ul, (vec){0,0,1}), 1);
 
+    scene_build(&scene, geometry, lights);
 
-    camera_render(&cam, (argc == 3 ? argv[2] : "output.pnm"), geometry, lights);
+    camera_render(&cam, (argc == 3 ? argv[2] : "output.pnm"), &scene);
 
 
     printf("! RENDER_TIME %d\n", (int)time(NULL)-t);

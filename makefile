@@ -17,7 +17,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir obj -p
-	$(CC) $(CFLAGS) $(INC) -MMD -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
 	rm $(OBJECTS)

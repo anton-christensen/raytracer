@@ -1,6 +1,6 @@
 #include "tracer.h"
 
-vec trace_ray(ray r, llist* geometry, llist* lights, int depth, long int* context_hash) {
+vec trace_ray(ray r, Scene* scene, int depth, long int* context_hash) {
     *context_hash = 0;
 
     if(depth > REFLECTION_DEPTH)
@@ -9,24 +9,41 @@ vec trace_ray(ray r, llist* geometry, llist* lights, int depth, long int* contex
     vec hit, normal, color;
     llist_node *n;
     
-    t = get_intersection(r, geometry, &hit, &normal, &color, &n);
+    t = get_intersection(r, &(scene->tree), &hit, &normal, &color, &n);
 
     if(t < 0) {
         return (vec){0.9,0.9,0.9};
     }
 
-    return shade(geometry, lights, &r, &hit, &normal, &color, n, depth, context_hash);
+    return shade(scene, &r, &hit, &normal, &color, n, depth, context_hash);
 }
 
-double get_intersection(ray r, llist* geometry, vec* hit, vec* normal, vec* color, llist_node** object_node) {
+double get_intersection(ray r, Octree* tree_node, vec* hit, vec* normal, vec* color, llist_node** object_node) {
+    int i;
     double t, t_lowest;
-    llist_node* n;
+    llist_node *n, *object_node_temp;
     vec hit_temp, normal_temp, color_temp;
     
 
     t = t_lowest = -1;
-    n = geometry->head;
+    // n = geometry->head;
+    n = tree_node->primitives->head; // first level
 
+    if(tree_node->octets != NULL) {
+        for(i = 0; i < 8; i++) {
+            if( ray_aabb_colides(r, tree_node) ) {
+                t = get_intersection(r, &(tree_node->octets[i]), &hit_temp, &normal_temp, &color_temp, &object_node_temp);
+                if(t > 0 && (t < t_lowest || t_lowest < 0)) {
+                    t_lowest = t;
+
+                    *hit            = hit_temp;
+                    *normal         = normal_temp;
+                    *color          = color_temp;
+                    *object_node    = object_node_temp;
+                }
+            }
+        }
+    }
     while(n != NULL) {
         switch(n->payloadType) {
             case SPHERE:
@@ -57,11 +74,11 @@ double get_intersection(ray r, llist* geometry, vec* hit, vec* normal, vec* colo
     return t_lowest;
 }
 
-vec shade(llist* geometry, llist* lights, ray* r, vec* hit, vec* normal, vec* color, llist_node* object_node, int depth, long int* context_hash) {
+vec shade(Scene* scene, ray* r, vec* hit, vec* normal, vec* color, llist_node* object_node, int depth, long int* context_hash) {
     double shadow_t, light_t;
     long int dummy_context;
     vec amb, diffuse = {0,0,0}, specularity = {0,0,0}, reflection = {0,0,0}, ambient_occlusion = {1,1,1}, dummy;
-    llist_node* n = lights->head, *shadow_object;
+    llist_node* n = scene->lights->head, *shadow_object;
     ray shadow_ray;
     Pointl* light;
     Material* m;
@@ -73,7 +90,7 @@ vec shade(llist* geometry, llist* lights, ray* r, vec* hit, vec* normal, vec* co
     while(n != NULL) {
         light = ((Pointl*)n->payload);
         shadow_ray = ray_create(*hit, vec_sub(light->pos,*hit));
-        shadow_t = get_intersection(shadow_ray, geometry, &dummy, &dummy, &dummy, &shadow_object);
+        shadow_t = get_intersection(shadow_ray, &(scene->tree), &dummy, &dummy, &dummy, &shadow_object);
         light_t = vec_norm(vec_sub(light->pos,*hit));
         if(shadow_t > 0 && shadow_t < light_t) { // collision with object before light
             n = n->next;
@@ -91,7 +108,7 @@ vec shade(llist* geometry, llist* lights, ray* r, vec* hit, vec* normal, vec* co
     }
 
     if(m->kr > 0)
-        reflection = trace_ray(ray_create(*hit, vec_reflect(r->direction, *normal)), geometry, lights, depth+1, &dummy_context);
+        reflection = trace_ray(ray_create(*hit, vec_reflect(r->direction, *normal)), scene, depth+1, &dummy_context);
 
 
     amb         = vec_mult(vec_color_mult(*color, light->color), m->ka);
@@ -115,7 +132,7 @@ Material* get_material(llist_node* n) {
     return NULL;
 }
 
-vec calc_ambient_occlusion(llist* geometry, vec* point, vec* normal) {
+vec calc_ambient_occlusion(Scene* scene, vec* point, vec* normal) {
     int i;
     int hits = 0;
     vec dummy_vec;
@@ -125,7 +142,7 @@ vec calc_ambient_occlusion(llist* geometry, vec* point, vec* normal) {
         sample = ray_create(*point, vec_unit((vec){rand(), rand(), rand()}));
         if(vec_dot(sample.direction, *normal) < 0)
             sample.direction = vec_mult(sample.direction, -1);
-        if(get_intersection(sample, geometry, &dummy_vec, &dummy_vec, &dummy_vec, &dummy_node) > 0)
+        if(get_intersection(sample, &(scene->tree), &dummy_vec, &dummy_vec, &dummy_vec, &dummy_node) > 0)
             hits++;
     }
     double shade = (double)(AMBIENT_OCCLUSION_SAMPLES-hits)/AMBIENT_OCCLUSION_SAMPLES;

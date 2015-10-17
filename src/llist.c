@@ -28,3 +28,36 @@ void* llist_add_new(llist* list, int size, int payloadType) {
 
 	return n->payload;
 }
+
+void llist_push_node(llist* list, llist_node* node) {
+	node->prev = list->tail;
+	node->next = NULL;
+	if(list->tail == NULL)
+		list->tail = node;
+	else
+		list->tail->next = node;
+	if(list->head == NULL)
+		list->head = node;
+	list->length++;
+}
+
+void llist_remove_node(llist* list, llist_node* node) {
+	llist_node* itt;
+	itt = list->head;
+	while(itt != NULL) {
+		if(itt == node) {
+			if(itt->prev != NULL) {
+				itt->prev->next = itt->next;
+			}
+			if(itt->next != NULL) {
+				itt->next->prev = itt->prev;
+			}
+			if(list->head == itt)
+				list->head = itt->next;
+			if(list->tail == itt)
+				list->tail = itt->prev;
+			list->length--;
+		}
+		itt = itt->next;
+	}
+}

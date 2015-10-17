@@ -1,6 +1,8 @@
 #ifndef _COMMON_
 #define _COMMON_
 
+#include <float.h>
+
 #include "llist.h"
 #include "vector.h"
 #include "sphere.h"
@@ -17,6 +19,7 @@
 #define REFLECTION_DEPTH 1
 #define AMBIENT_OCCLUSION_SAMPLES 1 // 128 samples
 #define SMART_ANTIALIAS 0
+
 
 enum primitive {
     SPHERE,

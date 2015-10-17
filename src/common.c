@@ -10,9 +10,9 @@ void calc_space_of_geometry(llist* geometry, vec* size, vec* position) {
     Sphere* sphere;
     Tri* tri;
 
-    height_low = 999999, height_high = -999999;
-    width_low = 999999, width_high = -999999;
-    depth_low = 999999, depth_high = -999999;
+    height_low = DBL_MAX, height_high = -DBL_MAX;
+    width_low = DBL_MAX, width_high = -DBL_MAX;
+    depth_low = DBL_MAX, depth_high = -DBL_MAX;
 
     llist_node* itt = geometry->head;
     while(itt != NULL) {

@@ -9,6 +9,44 @@ vec ray_get_point(ray r, double t) {
 	return vec_add(r.origin, vec_mult(r.direction, t));
 }
 
+int ray_aabb_slab_test(double slab_low, double slab_high, double origin, double direction, double *t_near, double *t_far) {
+	double t1, t2, t_temp;
+	
+	if(direction == 0) {// ray is parralel to x planes
+		if(origin < slab_low ||
+		   origin > slab_high) // r.origin outside slab
+			return 0;
+	}
+	else {
+		t1 = (slab_low - origin) / direction;
+		t2 = (slab_high - origin) / direction;
+		if(t1 > t2) {t_temp = t1; t1 = t2; t2 = t_temp;} // swap
+		if(t1 > *t_near) *t_near = t1;
+		if(t2 < *t_far) *t_far = t2;
+		if(*t_near > *t_far) return 0;
+		if(*t_far < 0) return 0;
+	}
+	return 1;
+}
+
+int ray_aabb_colides(ray r, Octree* aabb) {
+	double t_near, t_far;
+	int result;
+
+	t_near = -DBL_MAX;
+	t_far  =  DBL_MAX;
+
+	/* For each plane */
+	result = ray_aabb_slab_test((aabb->center.x - aabb->size.x/2), (aabb->center.x + aabb->size.x/2), r.origin.x, r.direction.x, &t_near, &t_far);
+	if(result == 0) return 0;
+	result = ray_aabb_slab_test((aabb->center.y - aabb->size.y/2), (aabb->center.y + aabb->size.y/2), r.origin.y, r.direction.y, &t_near, &t_far);
+	if(result == 0) return 0;
+	result = ray_aabb_slab_test((aabb->center.z - aabb->size.z/2), (aabb->center.z + aabb->size.z/2), r.origin.z, r.direction.z, &t_near, &t_far);
+	if(result == 0) return 0;
+	/* end */
+	return 1;
+}
+
 double ray_sphere_get_intersection(ray r, Sphere* s, vec* hit, vec* normal, vec* color) {
 	double t1, t2, t;
 

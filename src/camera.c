@@ -23,10 +23,10 @@ void camera_translate(camera* cam, vec t) {
 	cam->lr = vec_add(cam->lr, t);
 }
 
-void camera_render(camera* cam, char* outfile_path, llist* geometry, llist* lights) {
+void camera_render(camera* cam, char* outfile_path, Scene* scene) {
     FILE* f_img;
     ray r;
-    vec color;
+    vec color, s_color;
 
     long int context_x, last_context_x, last_context_y[COLS], dummy_context;
     int i,j;
@@ -46,15 +46,15 @@ void camera_render(camera* cam, char* outfile_path, llist* geometry, llist* ligh
     for(i = 0; i < cam->res_y ; i++) {
         for(j = 0; j < cam->res_x; j++) {
             int s_x, s_y;
-            vec s_color = {0,0,0};
+            s_color = (vec){0,0,0};
 
             r = camera_get_ray(cam, (double)j, (double)i);
-            s_color = trace_ray(r, geometry, lights, 0, &context_x);
+            s_color = trace_ray(r, scene, 0, &context_x);
             if(!SMART_ANTIALIAS || context_x != last_context_x || context_x != last_context_y[j]) {
                 for(s_y = 0; s_y < ANTIALIAS_FACTOR; s_y++) {
                     for(s_x = 1; s_x < ANTIALIAS_FACTOR; s_x++) {
                         r = camera_get_ray(cam, (double)j+(double)(s_x-ANTIALIAS_FACTOR/2)/ANTIALIAS_FACTOR, (double)i+(double)(s_y-ANTIALIAS_FACTOR/2)/ANTIALIAS_FACTOR);
-                        s_color = vec_add(s_color, trace_ray(r, geometry, lights, 0, &dummy_context));
+                        s_color = vec_add(s_color, trace_ray(r, scene, 0, &dummy_context));
                     }
                 }
                 color = vec_devide(s_color, ANTIALIAS_FACTOR*ANTIALIAS_FACTOR);
