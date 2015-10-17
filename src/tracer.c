@@ -9,7 +9,10 @@ vec trace_ray(ray r, Scene* scene, int depth, long int* context_hash) {
     vec hit, normal, color;
     llist_node *n;
     
-    t = get_intersection(r, &(scene->tree), &hit, &normal, &color, &n);
+    t = -1;
+
+    if( ray_aabb_colides(r, &(scene->tree) ) )
+        t = get_intersection(r, &(scene->tree), &hit, &normal, &color, &n);
 
     if(t < 0) {
         return (vec){0.9,0.9,0.9};
@@ -31,7 +34,7 @@ double get_intersection(ray r, Octree* tree_node, vec* hit, vec* normal, vec* co
 
     if(tree_node->octets != NULL) {
         for(i = 0; i < 8; i++) {
-            if( ray_aabb_colides(r, tree_node) ) {
+            if( ray_aabb_colides(r, &(tree_node->octets[i]) ) ) {
                 t = get_intersection(r, &(tree_node->octets[i]), &hit_temp, &normal_temp, &color_temp, &object_node_temp);
                 if(t > 0 && (t < t_lowest || t_lowest < 0)) {
                     t_lowest = t;

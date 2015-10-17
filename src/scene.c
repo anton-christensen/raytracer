@@ -18,10 +18,7 @@ void scene_build_octree(Octree* node, vec dimensions, vec center) {
     char in_octet = -1;
     char in_n_octets = 0;
     llist_node* itt;
-    vec sub_dimensions, sub_center[8];
     Tri* tri;
-
-    for(i = 0; i < 8; i++)
 
     // allocate space for sub_nodes
     node->octets = malloc(sizeof(Octree)*8);
@@ -42,12 +39,12 @@ void scene_build_octree(Octree* node, vec dimensions, vec center) {
                     // 4:   for each octant that we havn't registered as being inside, 
                     //        check if primitive is inside
                     for(j = 0; j < 8 && in_octet != j; j++) {
-                        if(tri->vertex[i].x >= sub_center[j].x - sub_dimensions.x/2 &&
-                           tri->vertex[i].x <= sub_center[j].x + sub_dimensions.x/2 &&
-                           tri->vertex[i].y >= sub_center[j].y - sub_dimensions.y/2 &&
-                           tri->vertex[i].y <= sub_center[j].y + sub_dimensions.y/2 &&
-                           tri->vertex[i].z >= sub_center[j].z - sub_dimensions.z/2 &&
-                           tri->vertex[i].z <= sub_center[j].z + sub_dimensions.z/2 ) {
+                        if(tri->vertex[i].x >= node->octets[j].size.x - node->octets[j].center.x/2 &&
+                           tri->vertex[i].x <= node->octets[j].size.x + node->octets[j].center.x/2 &&
+                           tri->vertex[i].y >= node->octets[j].size.y - node->octets[j].center.y/2 &&
+                           tri->vertex[i].y <= node->octets[j].size.y + node->octets[j].center.y/2 &&
+                           tri->vertex[i].z >= node->octets[j].size.z - node->octets[j].center.z/2 &&
+                           tri->vertex[i].z <= node->octets[j].size.z + node->octets[j].center.z/2 ) {
                             in_octet = j;
                             in_n_octets++;
                         } 
