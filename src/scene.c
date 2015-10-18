@@ -15,9 +15,9 @@ void scene_build(Scene* scene, llist* geometry, llist* lights) {
 
 void scene_build_octree(Octree* node, vec dimensions, vec center) {
     int i, j;
-    char in_octet = -1;
-    char in_n_octets = 0;
-    llist_node* itt;
+    char in_octet;
+    char in_n_octets;
+    llist_node *itt, *itt_temp;
     Tri* tri;
 
     // allocate space for sub_nodes
@@ -33,32 +33,41 @@ void scene_build_octree(Octree* node, vec dimensions, vec center) {
     while(itt != NULL) {
         switch(itt->payloadType) {
             case TRIANGLE:
+                in_n_octets = 0;
+                in_octet = -1;
                 tri = (Tri*)itt->payload;
                 // for each verticie while not registered in more than one octet
-                for(i = 0; i < 3 && in_n_octets < 2; i++) {
+                for(i = 0; i < 3; i++) {
                     // 4:   for each octant that we havn't registered as being inside, 
                     //        check if primitive is inside
-                    for(j = 0; j < 8 && in_octet != j; j++) {
-                        if(tri->vertex[i].x >= node->octets[j].size.x - node->octets[j].center.x/2 &&
-                           tri->vertex[i].x <= node->octets[j].size.x + node->octets[j].center.x/2 &&
-                           tri->vertex[i].y >= node->octets[j].size.y - node->octets[j].center.y/2 &&
-                           tri->vertex[i].y <= node->octets[j].size.y + node->octets[j].center.y/2 &&
-                           tri->vertex[i].z >= node->octets[j].size.z - node->octets[j].center.z/2 &&
-                           tri->vertex[i].z <= node->octets[j].size.z + node->octets[j].center.z/2 ) {
-                            in_octet = j;
-                            in_n_octets++;
+                    for(j = 0; j < 8; j++) {
+                        if(tri->vertex[i].x >= node->octets[j].center.x - node->octets[j].size.x/2 &&
+                           tri->vertex[i].x <= node->octets[j].center.x + node->octets[j].size.x/2 &&
+                           tri->vertex[i].y >= node->octets[j].center.y - node->octets[j].size.y/2 &&
+                           tri->vertex[i].y <= node->octets[j].center.y + node->octets[j].size.y/2 &&
+                           tri->vertex[i].z >= node->octets[j].center.z - node->octets[j].size.z/2 &&
+                           tri->vertex[i].z <= node->octets[j].center.z + node->octets[j].size.z/2 ) {
+                            if(in_octet != j) {
+                                in_octet = j;
+                                in_n_octets++;
+                            } 
                         } 
                     }
                 }
+                // 5:   if primitive is contained inside only one octet
+                if(in_n_octets == 1) {
+                    // 6:     add primitive to that octets primitive list
+                    itt_temp = itt->next;
+                    llist_remove_node(node->primitives, itt);
+                    llist_push_node(node->octets[(int)in_octet].primitives, itt);
+                    itt = itt_temp;
+                }
+                else itt = itt->next;
+                break;
+            default:
+                itt = itt->next;
                 break;
         }
-        // 5:   if primitive is contained inside only one octet
-        if(in_n_octets == 1) {
-            // 6:     add primitive to that octets primitive list
-            llist_remove_node(node->primitives, itt);
-            llist_push_node(node->octets[(int)in_octet].primitives, itt);
-        }
-        itt = itt->next;
     }
 
     // 7: For all octets in node 
@@ -77,16 +86,16 @@ void get_subnode_pos_and_size(vec parrent_dimensions, vec parrent_center, int in
     // binar 101 // high end z and x, low y
     *dimensions = vec_devide(parrent_dimensions, 2);
     *center = parrent_center; 
-    if((index & 1<<0) == 0) // low x
-        center->x -= dimensions->x;
-    if((index & 1<<0) == 1) // high x
-        center->x += dimensions->x;
-    if((index & 1<<1) == 0) // low y
-        center->y -= dimensions->y;
-    if((index & 1<<1) == 1) // high y
-        center->y += dimensions->y;
-    if((index & 1<<2) == 0) // low z
-        center->z -= dimensions->z;
-    if((index & 1<<2) == 1) // high z
-        center->z += dimensions->z;
+    if((index & (1<<0)) == 0) // low x
+        center->x -= dimensions->x/2;
+    else // high x
+        center->x += dimensions->x/2;
+    if((index & (1<<1)) == 0) // low y
+        center->y -= dimensions->y/2;
+    else // high y
+        center->y += dimensions->y/2;
+    if((index & (1<<2)) == 0) // low z
+        center->z -= dimensions->z/2;
+    else // high z
+        center->z += dimensions->z/2;
 }
